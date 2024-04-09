@@ -3,8 +3,10 @@ package com.cydeo.controller;
 import com.cydeo.bootstrap.DataGenerator;
 import com.cydeo.model.Employee;
 import com.cydeo.service.EmployeeService;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,11 +33,16 @@ public class EmployeeController {
 
 
     @PostMapping("/insert")
-    public String insertEmployee(@ModelAttribute("employee") Employee employee,Model model){
+    public String insertEmployee(@ModelAttribute("employee") @Valid Employee employee, BindingResult bindingResult,Model model){
+
+        //@valid is going to Employee class and check if created class qualifies to requirement
+        if(bindingResult.hasErrors()){
+            model.addAttribute("stateList", DataGenerator.getAllStates());
+            return "employee/employee-create";
+        }
 
         employeeService.saveEmployee(employee);
-        model.addAttribute("employeeList",employeeService.readAllEmployees());
-        return "redirect:/employee/list"; //with redirect we are using endpoints
+       return "redirect:/employee/list"; //with redirect we are using endpoints
     }
 
     @GetMapping("/list")
